@@ -1,3 +1,4 @@
+import selenium.webdriver
 from selenium import webdriver
 from bs4 import BeautifulSoup
 import pymysql.cursors
@@ -11,9 +12,7 @@ connection = pymysql.connect(host='localhost',
                              db='coder_hub',
                              charset='utf8mb4',
                              cursorclass=pymysql.cursors.DictCursor)
-headers = {
-    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.90 Safari/537.36'}
-web_url = 'http://www.toutiao.com/'
+
 home_insert_sql = "INSERT INTO `tt_home_page` (`content`, `pic_url`,`click_key`,`create_time`,`type`) VALUES (%s,%s,%s,%s,%s)"
 home_select_sql = "SELECT `*` FROM `tt_home_page` WHERE `click_key`=%s"
 home_update_sql = "UPDATE tt_home_page SET content = %s, pic_url = %s WHERE click_key = %s"
@@ -22,7 +21,24 @@ list_insert_sql = "INSERT INTO `tt_home_list` (`content`, `pic_url`,`click_key`,
 list_select_sql = "SELECT `*` FROM `tt_home_list` WHERE `click_key`=%s"
 list_update_sql = "UPDATE tt_home_list SET content = %s, pic_url = %s, web_time = %s, comment_num = %s WHERE click_key = %s"
 
-driver = webdriver.PhantomJS()
+headers = {
+    'Host': 'www.toutiao.com',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    'Connection': 'keep-alive',
+    'Accept-Language': 'en-us',
+    'Accept-Encoding': 'gzip, deflate',
+    'Upgrade-Insecure-Requests': '1',
+    'Cache-Control': 'max-age=0',
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_4) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/11.1 Safari/605.1.15',
+    'Cookie': 'tt_webid=6496247174204114445; __tasessionId=jb4b94add1517377040502; CNZZDATA1259612802=1731481297-1512525102-%7C1517373434; WEATHER_CITY=%E5%8C%97%E4%BA%AC; tt_webid=6496247174204114445; _ga=GA1.2.881746538.1517377022; _gid=GA1.2.302154837.1517377022; UM_distinctid=160298a34d9461-064e109cf061bb-1c451b26-13c680-160298a34da6eb'}
+web_url = 'https://www.toutiao.com/'
+# 设置header
+cap = webdriver.DesiredCapabilities.PHANTOMJS
+cap["phantomjs.page.settings.userAgent"] = headers['User-Agent']  # 设置请求header头信息
+# cap["phantomjs.page.settings.loadImages"] = False  # 禁止加载图片
+cap["phantomjs.page.customHeaders.Host"] = headers['Host']
+cap["phantomjs.page.customHeaders.Cookie"]=headers['Cookie']
+driver = webdriver.PhantomJS(desired_capabilities=cap)
 
 
 class Demo():
@@ -41,7 +57,7 @@ class Demo():
             print('db_operate finally')
 
     def get_data(self):
-        print("<<<<<<<<getting content>>>>>>>>")
+        print(">>>>>>>>getting content<<<<<<<<")
         driver.get(web_url)
         self.getNextPage()
         tags = BeautifulSoup(driver.page_source, 'lxml').find_all('li', class_='slide-item')
@@ -98,9 +114,12 @@ class Demo():
         # actions.move_to_element(e).perform()
         if self.__isLoop == 0:
             return
-        elems = driver.find_elements_by_class_name("lazy-load-img")
+        time.sleep(3)
+        print(driver.page_source)
+        elems = driver.find_elements_by_class_name('lazy-load-img')
         # elems = driver.find_elements_by_xpath("//img[@lazy='loaded']")
-        driver.execute_script("arguments[0].scrollIntoView();", elems[len(elems) - 1])
+        print(len(elems))
+        # driver.execute_script("arguments[0].scrollIntoView();", elems[len(elems) - 1])
         time.sleep(3)
         item_tags = BeautifulSoup(driver.page_source, 'lxml').find_all('div', class_='bui-box single-mode')
         for itemTag in item_tags:
