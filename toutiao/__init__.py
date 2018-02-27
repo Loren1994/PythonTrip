@@ -34,9 +34,8 @@ headers = {
 web_url = 'https://www.toutiao.com/'
 # 设置header
 cap = webdriver.DesiredCapabilities.PHANTOMJS
-cap["phantomjs.page.settings.userAgent"] = headers['User-Agent']  # 设置请求header头信息
-# cap["phantomjs.page.settings.loadImages"] = False  # 禁止加载图片
-cap["phantomjs.page.customHeaders.Host"] = headers['Host']
+# cap["phantomjs.page.settings.userAgent"] = headers['User-Agent']  # 设置请求header头信息
+# cap["phantomjs.page.customHeaders.Host"] = headers['Host']
 cap["phantomjs.page.customHeaders.Cookie"]=headers['Cookie']
 driver = webdriver.PhantomJS(desired_capabilities=cap)
 
@@ -59,7 +58,7 @@ class Demo():
     def get_data(self):
         print(">>>>>>>>getting content<<<<<<<<")
         driver.get(web_url)
-        self.getNextPage()
+        # self.getNextPage()
         tags = BeautifulSoup(driver.page_source, 'lxml').find_all('li', class_='slide-item')
         item_tags = BeautifulSoup(driver.page_source, 'lxml').find_all('div', class_='bui-box single-mode')
         # 列表数据
@@ -114,12 +113,10 @@ class Demo():
         # actions.move_to_element(e).perform()
         if self.__isLoop == 0:
             return
-        time.sleep(3)
-        print(driver.page_source)
         elems = driver.find_elements_by_class_name('lazy-load-img')
         # elems = driver.find_elements_by_xpath("//img[@lazy='loaded']")
         print(len(elems))
-        # driver.execute_script("arguments[0].scrollIntoView();", elems[len(elems) - 1])
+        driver.execute_script("arguments[0].scrollIntoView();", elems[len(elems) - 1])
         time.sleep(3)
         item_tags = BeautifulSoup(driver.page_source, 'lxml').find_all('div', class_='bui-box single-mode')
         for itemTag in item_tags:

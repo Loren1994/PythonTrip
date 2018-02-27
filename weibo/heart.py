@@ -12,7 +12,7 @@ from os import path
 d = path.dirname(__file__)
 
 # 填入准确的微博昵称即可生成词图
-input_nick_name = "GAI周延"
+input_nick_name = "大彥同學_"
 
 container_id = ""
 uid = ""
@@ -47,6 +47,28 @@ params = {
     "value": "{uid}",
     "containerid": "{containerid}",
     "page": "{page}"}
+
+filter = ["全文", "via", "网页", "链接", "gt", "VOL"]
+
+
+# 判断是否非汉字，数字和英文字符
+def is_other(uchar):
+    return not (is_chinese(uchar) or is_number(uchar) or is_alphabet(uchar))
+
+
+# 判断一个unicode是否是汉字
+def is_chinese(uchar):
+    return uchar >= u'\u4e00' and uchar <= u'\u9fa5'
+
+
+# 判断一个unicode是否是英文字母
+def is_alphabet(uchar):
+    return (uchar >= u'\u0041' and uchar <= u'\u005a') or (uchar >= u'\u0061' and uchar <= u'\u007a')
+
+
+# 判断一个unicode是否是数字
+def is_number(uchar):
+    return uchar >= u'\u0030' and uchar <= u'\u0039'
 
 
 def get_user_ids():
@@ -103,6 +125,14 @@ def generate_image():
     with codecs.open("weibo1.txt", 'r', encoding="utf-8") as f:
         for text in f.readlines():
             data.extend(jieba.analyse.extract_tags(text, topK=20))
+        for index in range(len(data)):
+            if index < len(data):
+                tempStr = data[index]
+                if (is_other(tempStr) or tempStr in filter):
+                    del data[index]
+        with open("words.txt", 'w') as fw:
+            for k in data:
+                fw.write("%s\n" % k)
         data = " ".join(data)
         # mask_img = imread('./52f90c9a5131c.jpg', flatten=True)
         mask_img = imread(path.join(d, "./ic_mask.png"))
