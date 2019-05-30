@@ -15,7 +15,7 @@ def make_app():
     Label(text='请务必按照格式输入抢单时间').pack()
     # Label(text='2019-02-27 12:49:10.88').pack()
     e_time = Entry(name='ipt')
-    e_time.insert(10, "2019-02-27 14:19:00.000000")
+    e_time.insert(10, "2019-04-04 17:31:00.0000")
     e_time.pack()
     # Label(name='lb1', text='抢单中').pack()
     Button(text='点击开始抢单', command=login).pack()
@@ -28,7 +28,13 @@ def login():
 
 
 def sign_up():
-    driver = webdriver.Chrome()
+    options = webdriver.ChromeOptions()
+    # 不加载图片,加快访问速度
+    options.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2})
+    # 设置为开发者模式，避免被识别
+    options.add_experimental_option('excludeSwitches',
+                                    ['enable-automation'])
+    driver = webdriver.Chrome(chrome_options=options)
     driver.get('https://www.taobao.com/')
     time.sleep(1)
     if driver.find_element_by_link_text('亲，请登录'):
